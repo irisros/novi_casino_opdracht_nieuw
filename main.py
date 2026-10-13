@@ -1,134 +1,130 @@
-#Dit zijn de gebruiker inputs
-voornaam = input("Voornaam: ").title()
-achternaam = input("Achternaam: ").title()
-geboortedatum = input("Geboortedatum(in format: dd-mm-yyyy): ")
-geslacht = input("Geslacht: ").lower()
-startbudget = float(input("Startbudget: "))
+from games import *
 
-#Dit zijn de variabelen die leeftijd checken
-geboorte_dag, geboorte_maand, geboorte_jaar = geboortedatum.split("-")
-MIN_LEEFTIJD = 18
-leeftijd = 2026 - int(geboorte_jaar)
+MIN_AGE = 18
+ENTRYTICKET = float(10)
+MANDATORYDRINK = float(5)
+GAMBLINGTAX = float(5)
 
-#Dit zijn de variabelen voor de kosten.
-TOEGANGSTICKET = float(10)
-VERPLICHTDRANKJE = float(5)
-GOKBELASTING = float(5)
-VASTEKOSTEN = float(TOEGANGSTICKET + VERPLICHTDRANKJE + GOKBELASTING)
-saldo = float(startbudget - VASTEKOSTEN)
+def calculate_age(birthdate):
+    birth_day, birth_month, birth_year = birthdate.split("-")
+    age = 2026 - int(birth_year)
+    return age
 
-#Dit zijn de variabelen voor het roulette spel
-round_number = 1
-spin = (round_number * 7) % 37
+def check_age(birthdate):
+    age = calculate_age(birthdate)
+    if age < MIN_AGE:
+        print("Je bent niet oud genoeg om toegang te krijgen tot een casino!")
+        exit(1)
+    return age
 
-#dit is een conditie structuur om via de inputs te checken welke aanspreekvorm van toepassing is.
-if geslacht == 'vrouw':
-    aanspreekvorm = 'mevrouw'
-elif geslacht == 'man':
-    aanspreekvorm = 'meneer'
-else: aanspreekvorm = ''
+def determine_addressing(gender):
+    if gender == 'vrouw':
+        addressing = 'mevrouw'
+    elif gender == 'man':
+        addressing = 'meneer'
+    else:
+        addressing = ''
+    return addressing
 
-#Dit is een conditie structuur om te checken of de gebruiker oud genoeg is. Zo niet, sluit het gehele programma af.
-if leeftijd < MIN_LEEFTIJD:
-    print("Je bent niet oud genoeg om toegang te krijgen tot een casino!")
-    exit(1)
+def determine_salutation(firstname, lastname, gender, addressing):
+    salutation = f"""Welkom, {addressing} {firstname} {lastname}."""
+    return salutation
 
-#Dit is wat de gebruiker ziet zodra diegene
-print(f'''Casino de Gouden Driehoek
--------------------------------------
-Welkom, {aanspreekvorm} {voornaam} {achternaam}
+def calculate_fixed_costs():
+    fixed_costs = ENTRYTICKET + MANDATORYDRINK + GAMBLINGTAX
+    return float(fixed_costs)
 
-Startbudget: €{startbudget:.2f}
-Vaste kosten: €{VASTEKOSTEN:.2f}
-Saldo: €{saldo:.2f}
-''')
+def input_startbudget():
+    startbudget = input("Wat is je startbudget? ")
+    return float(startbudget)
 
+def calculate_balance(startbudget):
+    balance = startbudget - calculate_fixed_costs()
+    return float(balance)
 
-if saldo > 0:
-    print("Je hebt nog genoeg budget voor toegang tot het casino.")
-elif saldo < 0:
-    print("Je hebt niet genoeg budget voor toegang tot het casino")
+def show_balance(balance):
+    print(f"""Uw huidig saldo is {float(balance):.2f}""")
 
-while True:
-    print(f"""Kies één van de volgende opties:
-    1: rood
-    2: zwart
-    3: even
-    4: oneven
-    0: stop
-          """)
-    kleur = ""
-    odd_even = ""
-    choice = int(input("Kies je gok! (0 om te stoppen): "))
-    if choice == 0:
-        break
-    stake = float(input("Hoeveel geld wil je inzetten?: "))
-    if stake <= 0:
-        print("Dit mag niet. Probeer opnieuw.")
-        continue
-    if stake > saldo:
-        print("Te weinig saldo. Probeer opnieuw.")
-        continue
-    saldo -= stake
-    if spin == 0:
-        kleur = "groen"
-        odd_even = "geen"
-    elif spin <= 18:
-        if spin % 2 == 0:
-            kleur = "zwart"
-            odd_even = "even"
-        else:
-            kleur = "rood"
-            odd_even = "oneven"
-    elif spin > 18:
-        if spin % 2 == 0:
-            kleur = "rood"
-            odd_even = "even"
-        else:
-            kleur = "zwart"
-            odd_even = "oneven"
+def show_account(firstname, lastname, addressing, birthdate, age):
+    print(f"""
+    Casino de Gouden Driehoek - Account
+    -------------------------------------------
+    Naam:           {firstname + lastname}
+    Aanspreekvorm:  {addressing}
+    Geboortedatum:  {birthdate}
+    Leeftijd:       {age}
+    
+    """)
 
-    win = False
-    if choice == 1 and kleur == "rood":
-        win = True
-    elif choice == 2 and kleur == "zwart":
-        win = True
-    elif choice == 3 and odd_even == "even":
-        win = True
-    elif choice == 4 and odd_even == "oneven":
-        win = True
+def show_welcome_message(salutation, startbudget, fixed_costs, balance):
+    welcome_message = f"""
+    Casino de Gouden Driehoek
+    ------------------------------------------- 
+    {salutation}
+    Startbudget:    €{startbudget:.2f}
+    Vaste kosten:   €{fixed_costs:.2f}
+    Saldo:          €{balance:.2f}
+    """
+    print(welcome_message)
 
-    if win == True:
-        saldo += stake
-        print(f'''Je hebt {stake} gewonnen. Je saldo is nu {saldo}''')
-    if win == False:
-        saldo -= stake
-        print(f'''Je hebt {stake} verloren. Je saldo is nu {saldo}''')
+def show_main_menu(balance, firstname, lastname, addressing, birthdate, age):
+    main_menu_choice = input(f"""
+    Casino de Gouden Driehoek - Hoofdmenu
+    -------------------------------------------
+    1. Spellen
+    2. Saldo
+    3. Account
+    0. Stop
+    
+    Kies een optie: 
+    """)
+    if main_menu_choice == "1":
+        show_games_menu()
+    elif main_menu_choice == "2":
+        show_balance(balance)
+        show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
+    elif main_menu_choice == "3":
+        show_account(firstname, lastname, addressing, birthdate, age)
+        show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
+    elif main_menu_choice == "0":
+        exit(1)
+    else:
+        print("Ongeldig. Probeer opnieuw.")
+        show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
 
-    round_number +=1
+def show_games_menu():
+    games_menu_choice = input(f"""
+    Casino de Gouden Driehoek - Games Menu
+    -------------------------------------------
+    1. Fruitmachine
+    2. Roulette
+    0. Terug
+    
+    Kies een optie: 
+    """)
 
-print(f'''Je eindsaldo is {saldo}. Tot ziens.''')
+def main():
+    firstname = input("Voornaam: ").title()
+    lastname = input("Achternaam: ").title()
 
+    birthdate = input("Wat is je geboortedatum? (DD-MM-YYYY):")
+    age = calculate_age(birthdate)
+    check_age(birthdate)
 
+    gender = input("Geslacht: ").lower()
+    addressing = determine_addressing(gender)
 
+    salutation = determine_salutation(firstname, lastname, gender, addressing)
+    startbudget = input_startbudget()
+    fixed_costs = calculate_fixed_costs()
+    balance = calculate_balance(startbudget)
 
+    show_welcome_message(salutation, startbudget, fixed_costs, balance)
+    show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
 
-
-
-
-
-
-
-
-
-
-
-
-
+    while True:
 
 
-
-
-
+main()
 
 
