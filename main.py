@@ -1,4 +1,5 @@
-from games import *
+from games.playroulette import play_roulette
+from games.playfruitmachine import play_fruitmachine
 
 MIN_AGE = 18
 ENTRYTICKET = float(10)
@@ -44,6 +45,7 @@ def calculate_balance(startbudget):
 
 def show_balance(balance):
     print(f"""Uw huidig saldo is {float(balance):.2f}""")
+    return balance
 
 def show_account(firstname, lastname, addressing, birthdate, age):
     print(f"""
@@ -67,7 +69,7 @@ def show_welcome_message(salutation, startbudget, fixed_costs, balance):
     """
     print(welcome_message)
 
-def show_main_menu(balance, firstname, lastname, addressing, birthdate, age):
+def show_main_menu():
     main_menu_choice = input(f"""
     Casino de Gouden Driehoek - Hoofdmenu
     -------------------------------------------
@@ -78,19 +80,7 @@ def show_main_menu(balance, firstname, lastname, addressing, birthdate, age):
     
     Kies een optie: 
     """)
-    if main_menu_choice == "1":
-        show_games_menu()
-    elif main_menu_choice == "2":
-        show_balance(balance)
-        show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
-    elif main_menu_choice == "3":
-        show_account(firstname, lastname, addressing, birthdate, age)
-        show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
-    elif main_menu_choice == "0":
-        exit(1)
-    else:
-        print("Ongeldig. Probeer opnieuw.")
-        show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
+    return main_menu_choice
 
 def show_games_menu():
     games_menu_choice = input(f"""
@@ -102,6 +92,7 @@ def show_games_menu():
     
     Kies een optie: 
     """)
+    return games_menu_choice
 
 def main():
     firstname = input("Voornaam: ").title()
@@ -120,11 +111,32 @@ def main():
     balance = calculate_balance(startbudget)
 
     show_welcome_message(salutation, startbudget, fixed_costs, balance)
-    show_main_menu(balance, firstname, lastname, addressing, birthdate, age)
-
     while True:
+        main_menu_choice = show_main_menu()
+        if main_menu_choice == "1":
+            while True:
+                games_menu_choice = show_games_menu()
+                if games_menu_choice == "1":
+                    balance = play_fruitmachine(balance)
+                elif games_menu_choice == "2":
+                    balance = play_roulette(balance)
+                elif games_menu_choice == "0":
+                    break
+        elif main_menu_choice == "2":
+            print(f""" Uw huidig saldo is {balance}""")
+            continue
+        elif main_menu_choice == "3":
+            show_account(firstname, lastname, addressing, birthdate, age)
+            continue
+        elif main_menu_choice == "0":
+            exit(1)
+        else:
+            print("Ongeldig. Probeer opnieuw.")
+            continue
+
+if __name__ == '__main__':
+    main()
 
 
-main()
 
 
